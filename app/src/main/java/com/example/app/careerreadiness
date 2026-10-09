@@ -1,0 +1,124 @@
+package com.example.app.careerreadiness
+
+enum class ReadinessStatus {
+    NOT_ASSESSED,
+    NEEDS_FOUNDATION,
+    DEVELOPING,
+    ALMOST_READY,
+    READY
+}
+
+data class AssessmentSnapshot(
+    val assessmentDate: Long = System.currentTimeMillis(),
+    val interestScore: Int = 0,
+    val aptitudeScore: Int = 0,
+    val skillScore: Int = 0,
+    val knowledgeScore: Int = 0,
+    val strengths: List<String> = emptyList(),
+    val improvementAreas: List<String> = emptyList()
+) {
+    fun normalized(): AssessmentSnapshot = copy(
+        interestScore = interestScore.coerceIn(0, 100),
+        aptitudeScore = aptitudeScore.coerceIn(0, 100),
+        skillScore = skillScore.coerceIn(0, 100),
+        knowledgeScore = knowledgeScore.coerceIn(0, 100)
+    )
+
+    val averageScore: Int
+        get() {
+            val a = normalized()
+            return (
+                a.interestScore + a.aptitudeScore +
+                    a.skillScore + a.knowledgeScore
+                ) / 4
+        }
+}
+
+data class ProjectReadinessInput(
+    val totalProjects: Int = 0,
+    val completedProjects: Int = 0,
+    val completedTasks: Int = 0,
+    val totalTasks: Int = 0,
+    val averageEvaluationScore: Int = 0,
+    val demonstratedSkills: List<String> = emptyList(),
+    val improvementSkills: List<String> = emptyList()
+)
+
+data class CareerReadinessInput(
+    val studentId: String,
+    val careerCode: String,
+    val careerTitle: String,
+    val previousAssessment: AssessmentSnapshot?,
+    val currentAssessment: AssessmentSnapshot,
+    val currentSkills: List<String>,
+    val requiredSkills: List<String>,
+    val partialSkills: List<String> = emptyList(),
+    val projectProgress: ProjectReadinessInput = ProjectReadinessInput(),
+    val educationCompatible: Boolean = false
+)
+
+data class ScoreChange(
+    val category: String,
+    val previousScore: Int,
+    val currentScore: Int,
+    val change: Int
+)
+
+data class ReAssessmentResult(
+    val studentId: String,
+    val previousAverage: Int?,
+    val currentAverage: Int,
+    val overallChange: Int?,
+    val scoreChanges: List<ScoreChange>,
+    val strengths: List<String>,
+    val improvementAreas: List<String>,
+    val improvementHistory: List<AssessmentSnapshot>,
+    val explanation: String
+)
+
+data class SkillReadinessResult(
+    val matchedSkills: List<String>,
+    val missingSkills: List<String>,
+    val partialSkills: List<String>,
+    val readinessScore: Int,
+    val explanation: String
+)
+
+data class CareerReadinessResult(
+    val studentId: String,
+    val careerCode: String,
+    val careerTitle: String,
+    val readinessScore: Int,
+    val readinessStatus: ReadinessStatus,
+    val interestReadiness: Int,
+    val aptitudeReadiness: Int,
+    val skillReadiness: Int,
+    val knowledgeReadiness: Int,
+    val projectReadiness: Int,
+    val educationReadiness: Int,
+    val skillDetails: SkillReadinessResult,
+    val strengths: List<String>,
+    val weaknesses: List<String>,
+    val remainingPreparation: List<String>,
+    val improvementHistory: List<AssessmentSnapshot>,
+    val explanation: String,
+    val report: String
+)
+
+data class CareerReadinessReport(
+    val studentId: String,
+    val careerTitle: String,
+    val readinessScore: Int,
+    val readinessStatus: ReadinessStatus,
+    val summary: String,
+    val strengths: List<String>,
+    val improvementAreas: List<String>,
+    val nextSteps: List<String>,
+    val reportText: String
+)
+
+data class CareerReadinessDashboard(
+    val reAssessment: ReAssessmentResult,
+    val readiness: CareerReadinessResult,
+    val report: CareerReadinessReport
+)
